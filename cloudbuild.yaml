@@ -1,0 +1,85 @@
+steps:
+  # Build backend Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/boltvisa-api:$SHORT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/boltvisa-api:latest'
+      - '-f'
+      - 'apps/api/Dockerfile'
+      - 'apps/api'
+    id: 'build-backend'
+
+  # Build frontend Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/boltvisa-web:$SHORT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/boltvisa-web:latest'
+      - '-f'
+      - 'apps/web/Dockerfile'
+      - '.'
+    id: 'build-frontend'
+
+  # Push backend image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/boltvisa-api:$SHORT_SHA'
+    id: 'push-backend'
+
+  # Push frontend image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/boltvisa-web:$SHORT_SHA'
+    id: 'push-frontend'
+
+  # Deploy to Cloud Run (Backend)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'boltvisa-api'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/boltvisa-api:$SHORT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+    id: 'deploy-backend'
+
+  # Deploy to Cloud Run (Frontend)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'boltvisa-web'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/boltvisa-web:$SHORT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+    id: 'deploy-frontend'
+
+images:
+  - 'gcr.io/$PROJECT_ID/boltvisa-api:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/boltvisa-api:latest'
+  - 'gcr.io/$PROJECT_ID/boltvisa-web:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/boltvisa-web:latest'
+
+options:
+  machineType: 'E2_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: '1200s'
+

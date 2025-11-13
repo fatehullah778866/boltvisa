@@ -1,0 +1,29 @@
+{
+  "name": "boltvisa",
+  "private": true,
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "setup": "corepack enable && corepack prepare pnpm@9.12.0 --activate",
+    "bootstrap": "pnpm install",
+    "dev": "pnpm -w run dev:all",
+    "dev:all": "pnpm -w run dev:api & pnpm -w run dev:web",
+    "dev:api": "pnpm --filter ./apps/api run dev",
+    "dev:web": "pnpm --filter ./apps/web run dev",
+    "build": "pnpm -w build",
+    "lint": "pnpm -w lint",
+    "type-check": "pnpm -w type-check",
+    "check": "pnpm -w run type-check && pnpm -w run lint",
+    "test": "turbo run test",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "clean": "turbo run clean"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.3.0",
+    "@playwright/test": "^1.40.0"
+  }
+}

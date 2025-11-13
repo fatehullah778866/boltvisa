@@ -1,0 +1,15 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    "no-restricted-imports": ["error", {
+      "paths": [
+        {
+          "name": "@boltvisa/utils",
+          "importNames": ["apiRequest"],
+          "message": "Use '@/lib/apiRequest' instead. The apiRequest from @boltvisa/utils is deprecated."
+        }
+      ]
+    }]
+  }
+}
+
